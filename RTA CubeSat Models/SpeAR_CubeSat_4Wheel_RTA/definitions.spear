@@ -1,0 +1,108 @@
+Definition SixU_CubeSat_v2.definitions;
+//definitions.spear
+// This file contains all of the units, and constants that might be used in the simulation
+// Few of these definitions are actually used. 
+// Kerianne Hobbs Gross 
+// kerianne.gross@us.af.mil
+// Last Updated 27 Oct 2015
+
+Units:
+	unitless;			// unit 1
+	m;					// meter
+	s;					// second
+	kg;					// kilograms	
+	cycles;				// cycles, as in, Hz is cycles/sec
+	s2 : s * s;			// seconds squared
+	m2 : m * m;			// meters squared
+	m3 : m * m * m;		// meters cubed
+	kg_m : kg * m;		// kilogram meters
+	kg_m2 : kg * m2;	// kilogram meters squared
+	N: kg_m / s2; 		// Newton (Kilogram meter per second squared)	
+	N_m : N * m;		// Newton-Meter
+	m3_p_s : m3 / s;	// cubic meters per second
+	rad;				// radians
+	rad_p_s : rad /s;   // radians per second
+	rad_p_s_2 : rad_p_s / s; //radians per second squared
+	Hz : cycles/s;	// Hertz
+	s : cycles/(cycles/s);
+	
+Constants:
+	// System Properties
+	//SYSTEM_RATE: real Hz = 10.0 Hz;// [Hz]
+	//DELTA_T: real s = 1.0 cycles / (SYSTEM_RATE) Hz;//[s]
+	SYSTEM_RATE: real = 10.0;// [Hz]
+	DELTA_T: real = 0.1 / SYSTEM_RATE;//[s]
+	
+	//Simulation Properties
+	INIT_TIME : real = 0.0;
+	
+	// Satellite Properties
+	MASS_SAT : real = 6.0; //[kg]
+	IXX: real =  0.05; // [kg_m2] Moment of Inertia of Spacecraft in X-direction
+    IYY: real =  0.05; // [kg_m2] Moment of Inertia of Spacecraft in Y-direction
+    IZZ: real =  0.05; // [kg_m2] Moment of Inertia of Spacecraft in Z-direction
+	
+    //Reaction Wheel Properties
+    D: real = 0.000907; // [kg_m2] Moment of Inertia of an individual Reaction Wheel
+	MAX_PSI_RW : real = 104.7; // [rad_p_s]
+	MAX_PSI_DOT_RW : real = 110.3; // [rad_p_s_2]
+	MOTOR_TORQUE : real = 0.0011; //[N_m]
+	ALPHA_1 : real = 5.4978; // [rad] (315 deg) angle between RW1 spin axis and spacecraft x-axis
+	ALPHA_2 : real = 0.7854; // [rad] (45 deg)  angle between RW2 spin axis and spacecraft x-axis
+	ALPHA_3 : real = 2.3562; // [rad] (135 deg) angle between RW3 spin axis and spacecraft x-axis
+	ALPHA_4 : real = 3.9270; // [rad] (225 deg) angle between RW4 spin axis and spacecraft x-axis
+	BETA : real = 0.7854;	 // [rad] (45 deg)  angle between all RW spin axis and spacecraft z-axis
+	CA1 : real =  0.7071;	 // cos(ALPHA_1)
+	CA2 : real =  0.7071;	 // cos(ALPHA_2)	
+	CA3 : real = -0.7071;   // cos(ALPHA_3)
+	CA4 : real = -0.7071;   // cos(ALPHA_4)
+	SA1 : real = -0.7071;   // sin(ALPHA_1)
+	SA2 : real = 0.7071;    // sin(ALPHA_2)
+	SA3 : real = 0.7071;    // sin(ALPHA_3)
+	SA4 : real = -0.7071;   // sin(ALPHA_4)
+	CB : real = 0.7071;		 // cos(BETA)
+	SB : real = 0.7071;      // sin(BETA)
+	SQRT_2 : real =  1.414213562373095; //estimated square root of 2
+	
+	// Controller Properties
+	KP: real = 0.1;
+	KD: real = 0.1;
+	
+	// Example initial conditions
+	Q10: real = 0.000; // initial quaternion 1;
+	Q20: real = 0.000; // initial quaternion 1;
+	Q30: real = 0.000; // initial quaternion 1;
+	Q40: real = 1.000; // initial quaternion 1;
+	OMEGA_1_0: real = 0.000; // initial angular velocity of the spacecraft about the x-axis
+	OMEGA_2_0: real = 0.000; // initial angular velocity of the spacecraft about the y-axis
+	OMEGA_3_0: real = 0.000; // initial angular velocity of the spacecraft about the z-axis
+	PSI_1_0: real = 0.000;   // initial angular velocity of the reaction wheels
+	PSI_2_0: real = 0.000;   // initial angular velocity of the reaction wheels
+	PSI_3_0: real = 0.000;   // initial angular velocity of the reaction wheels
+	PSI_4_0: real = 0.000;   // initial angular velocity of the reaction wheels
+	PSI_DOT_1_0: real = 0.0; // initial angular acceleration of the reaction wheel
+	PSI_DOT_2_0: real = 0.0; // initial angular acceleration of the reaction wheel
+	PSI_DOT_3_0: real = 0.0; // initial angular acceleration of the reaction wheel
+	PSI_DOT_4_0: real = 0.0; // initial angular acceleration of the reaction wheel
+	
+	// Example final conditions
+	Q1F: real = 0.5000; // desired final quaterion 1
+    Q2F: real = 0.5000; // desired final quaterion 2
+    Q3F: real = 0.0000; // desired final quaterion 3
+    Q4F: real = 0.7071; // desired final quaterion 4
+	OMEGA_1_f: real = 0.000; // initial angular velocity of the spacecraft about the x-axis
+	OMEGA_2_f: real = 0.000; // initial angular velocity of the spacecraft about the y-axis
+	OMEGA_3_f: real = 0.000; // initial angular velocity of the spacecraft about the z-axis
+	
+	
+Types:
+	controller_output_type : {psi_dot_comm_1 : real, psi_dot_comm_2 : real, psi_dot_comm_3 : real, psi_dot_comm_4 : real}; // [rad/s^2]}; 
+	verified_controller_output_type : {psi_dot_comm_1_ver : real, psi_dot_comm_2_ver : real, psi_dot_comm_3_ver : real, psi_dot_comm_4_ver : real}; // [rad/s^2]}; 
+	unverified_controller_output_type : {psi_dot_comm_1_unv : real, psi_dot_comm_2_unv : real, psi_dot_comm_3_unv : real, psi_dot_comm_4_unv : real}; // [rad/s^2]}; 
+	decision_module_output_type : {psi_dot_comm_1_dm : real, psi_dot_comm_2_dm : real, psi_dot_comm_3_dm : real, psi_dot_comm_4_dm : real}; // [rad/s^2]};
+	reaction_wheel_output_type : {H_rw : real}; // angular momentum; 
+	reaction_wheel_array_output_type : {H_rwa : real,H_rwa_dot : real}; // angular momentum change;
+	structure_output_type : {q1_new : real, q2_new : real, q3_new : real, q4_new : real, w1_new : real, w2_new : real, w3_new : real}; // updated state
+	environment_output_type : {q1_new : real, q2_new : real, q3_new : real, q4_new : real, w1_new : real, w2_new : real, w3_new : real, psi1_new : real, psi2_new : real, psi3_new : real, psi4_new: real}; // updated state
+	system_output_type : {q1_new : real, q2_new : real, q3_new : real, q4_new : real, w1_new : real, w2_new : real, psi1_new : real, psi2_new : real, psi3_new : real, psi4_new: real}; // updated state
+	    

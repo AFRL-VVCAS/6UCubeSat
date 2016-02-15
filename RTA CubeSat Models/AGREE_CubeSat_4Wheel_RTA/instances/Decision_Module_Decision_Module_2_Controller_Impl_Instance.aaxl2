@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="ASCII"?>
+<instance:SystemInstance xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aadl2="http://aadl.info/AADL/2.0" xmlns:instance="http://aadl.info/AADL/2.0/instance" xmi:id="_GwcqAJKtEeWDBqxhfV8fbQ" name="Decision_Module_2_Controller_Impl_Instance" category="system">
+  <featureInstance xmi:id="_GwcqAZKtEeWDBqxhfV8fbQ" name="pre_psi1_in">
+    <ownedPropertyAssociation xmi:id="_GwwMAJKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMAZKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMApKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.0"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbAJKtEeWDBqxhfV8fbQ" name="pre_psi2_in">
+    <ownedPropertyAssociation xmi:id="_GwwMA5KtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMBJKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMBZKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.1"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbAZKtEeWDBqxhfV8fbQ" name="pre_psi3_in">
+    <ownedPropertyAssociation xmi:id="_GwwMBpKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMB5KtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMCJKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.2"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbApKtEeWDBqxhfV8fbQ" name="pre_psi4_in">
+    <ownedPropertyAssociation xmi:id="_GwwMCZKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMCpKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMC5KtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.3"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbA5KtEeWDBqxhfV8fbQ" name="psi_dot_comm_1_verified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMDJKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMDZKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMDpKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.4"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbBJKtEeWDBqxhfV8fbQ" name="psi_dot_comm_2_verified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMD5KtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMEJKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMEZKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.5"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbBZKtEeWDBqxhfV8fbQ" name="psi_dot_comm_3_verified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMEpKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwME5KtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMFJKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.6"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbBpKtEeWDBqxhfV8fbQ" name="psi_dot_comm_4_verified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMFZKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMFpKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMF5KtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.7"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbB5KtEeWDBqxhfV8fbQ" name="psi_dot_comm_1_unverified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMGJKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMGZKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMGpKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.8"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbCJKtEeWDBqxhfV8fbQ" name="psi_dot_comm_2_unverified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMG5KtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMHJKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMHZKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.9"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbCZKtEeWDBqxhfV8fbQ" name="psi_dot_comm_3_unverified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMHpKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMH5KtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMIJKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.10"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbCpKtEeWDBqxhfV8fbQ" name="psi_dot_comm_4_unverified_in">
+    <ownedPropertyAssociation xmi:id="_GwwMIZKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMIpKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMI5KtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.11"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbC5KtEeWDBqxhfV8fbQ" name="psi_dot_comm_1_dm" direction="out">
+    <ownedPropertyAssociation xmi:id="_GwwMJJKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMJZKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMJpKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.12"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbDJKtEeWDBqxhfV8fbQ" name="psi_dot_comm_2_dm" direction="out">
+    <ownedPropertyAssociation xmi:id="_GwwMJ5KtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMKJKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMKZKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.13"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbDZKtEeWDBqxhfV8fbQ" name="psi_dot_comm_3_dm" direction="out">
+    <ownedPropertyAssociation xmi:id="_GwwMKpKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMK5KtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwMLJKtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.14"/>
+  </featureInstance>
+  <featureInstance xmi:id="_GwmbDpKtEeWDBqxhfV8fbQ" name="psi_dot_comm_4_dm" direction="out">
+    <ownedPropertyAssociation xmi:id="_GwwMLZKtEeWDBqxhfV8fbQ">
+      <property href="../Plugin_Resources/Data_Model.aadl#Data_Model.Data_Representation"/>
+      <ownedValue xmi:id="_GwwMLpKtEeWDBqxhfV8fbQ">
+        <ownedValue xsi:type="aadl2:NamedValue" xmi:id="_GwwML5KtEeWDBqxhfV8fbQ">
+          <namedValue xsi:type="aadl2:EnumerationLiteral" href="../Plugin_Resources/Data_Model.aadl#//@ownedProperty.4/@ownedPropertyType/@ownedLiteral.4"/>
+        </ownedValue>
+      </ownedValue>
+    </ownedPropertyAssociation>
+    <feature xsi:type="aadl2:DataPort" href="../Decision_Module.aadl#//@ownedPublicSection/@ownedClassifier.0/@ownedDataPort.15"/>
+  </featureInstance>
+  <systemOperationMode xmi:id="_GwmbD5KtEeWDBqxhfV8fbQ" name="No Modes"/>
+  <systemImplementation href="../Decision_Module.aadl#Decision_Module.Decision_Module_2_Controller.Impl"/>
+</instance:SystemInstance>

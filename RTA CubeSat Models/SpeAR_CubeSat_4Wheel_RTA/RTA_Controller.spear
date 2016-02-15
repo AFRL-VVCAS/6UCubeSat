@@ -1,0 +1,91 @@
+// RTA_Controller.spear
+// This file contains the requirements of the control subsystem in the properties section
+// and describes the RTA controller in the requirements section.
+// This requirements set is abstract and doesn't include the PID control algorithm,
+// just how the controller ensures limits are not violated.
+// Kerianne Hobbs Gross 
+// kerianne.gross@us.af.mil
+// Last Updated 27 Oct 2015
+
+Relation SixU_CubeSat_v2.Controller;
+Uses SixU_CubeSat_v2.definitions.controller_output_type.*;
+Uses SixU_CubeSat_v2.definitions.verified_controller_output_type.*;
+Uses SixU_CubeSat_v2.definitions.unverified_controller_output_type.*;
+Uses SixU_CubeSat_v2.definitions.decision_module_output_type.*;
+Uses SixU_CubeSat_v2.definitions.*;
+
+
+Inputs: // input signals (states) to the controller
+	// These are the only inputs we actually need for verification
+	 
+	// angular velocity of the individual reaction wheels at the previous time step 
+	// (from the Hall Sensors)
+	pre_psi1 : real; // [rad_p_s (rad/s)]
+	pre_psi2 : real; // [rad_p_s (rad/s)]
+	pre_psi3 : real; // [rad_p_s (rad/s)]
+	pre_psi4 : real; // [rad_p_s (rad/s)]
+
+Outputs: // output commands of the controller
+	//Interface requirement: the control algorithm shall output a change of angular velocity command to each reaction wheel.
+	//psi_dot_comm : controller_output_type; // [rad/s^2]	
+	ctrl_out : controller_output_type;
+	
+State: // variables
+	ctrl_ver : verified_controller_output_type;
+	ctrl_unv : unverified_controller_output_type;
+	ctrl_dm : decision_module_output_type;
+	
+Macros:
+	verified_psi_dot_comm_1 : real = ctrl_ver{psi_dot_comm_1_ver};
+	verified_psi_dot_comm_2 : real = ctrl_ver{psi_dot_comm_2_ver};
+	verified_psi_dot_comm_3 : real = ctrl_ver{psi_dot_comm_3_ver};
+	verified_psi_dot_comm_4 : real = ctrl_ver{psi_dot_comm_4_ver};
+	unverified_psi_dot_comm_1 : real = ctrl_unv{psi_dot_comm_1_unv};
+	unverified_psi_dot_comm_2 : real = ctrl_unv{psi_dot_comm_2_unv};
+	unverified_psi_dot_comm_3 : real = ctrl_unv{psi_dot_comm_3_unv};
+	unverified_psi_dot_comm_4 : real = ctrl_unv{psi_dot_comm_4_unv};
+	dm_psi_dot_comm_1 : real = ctrl_dm{psi_dot_comm_1_dm};
+	dm_psi_dot_comm_2 : real = ctrl_dm{psi_dot_comm_2_dm};
+	dm_psi_dot_comm_3 : real = ctrl_dm{psi_dot_comm_3_dm};
+	dm_psi_dot_comm_4 : real = ctrl_dm{psi_dot_comm_4_dm};
+	psi_dot_comm_1: real = dm_psi_dot_comm_1;
+	psi_dot_comm_2: real = dm_psi_dot_comm_2;
+	psi_dot_comm_3: real = dm_psi_dot_comm_3;
+	psi_dot_comm_4: real = dm_psi_dot_comm_4;
+	
+Requirements: //Assumptions and Refined Requirements at the Subsystem Level
+	r_ctrl_ver =  global :: always ctrl_ver == SixU_CubeSat_v2.Verified_Controller(pre_psi1, pre_psi2, pre_psi3, pre_psi4);
+	r_ctrl_unv =  global :: always ctrl_unv == SixU_CubeSat_v2.Unverified_Controller(pre_psi1, pre_psi2, pre_psi3, pre_psi4);
+	r_ctrl_dm =  global :: always ctrl_dm == SixU_CubeSat_v2.Decision_Module(pre_psi1, pre_psi2, pre_psi3, pre_psi4,
+		verified_psi_dot_comm_1,verified_psi_dot_comm_2,verified_psi_dot_comm_3,verified_psi_dot_comm_4, 
+		unverified_psi_dot_comm_1, unverified_psi_dot_comm_2, unverified_psi_dot_comm_3, unverified_psi_dot_comm_4);
+	r_output = global :: always ctrl_out == new controller_output_type{psi_dot_comm_1 = dm_psi_dot_comm_1, 
+																	  psi_dot_comm_2 = dm_psi_dot_comm_2, 
+																	  psi_dot_comm_3 = dm_psi_dot_comm_3, 
+																	  psi_dot_comm_4 = dm_psi_dot_comm_4};
+
+Properties: //System Level Requirements
+
+	//R01 The commanded change of angular velocity from the control algorithm shall not exceed the maximum allowable 
+	// angular acceleration of the reaction wheel.
+	r_01a_ctrl = global :: always psi_dot_comm_1 <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_1 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01b_ctrl = global :: always psi_dot_comm_2 <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_2 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01c_ctrl = global :: always psi_dot_comm_3 <= MAX_PSI_DOT_RW 
+		  					  and psi_dot_comm_3 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01d_ctrl = global :: always psi_dot_comm_4 <= MAX_PSI_DOT_RW 	
+							  and psi_dot_comm_4 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+
+	//R02 The control algorithm prediction of reaction wheel angular velocity as a result 
+	//of the commanded change of angular velocity shall not exceed the maximum allowable 
+	//angular velocity of the reaction wheel.
+	r_02a_ctrl = global :: always (pre_psi1 + psi_dot_comm_1*DELTA_T) <= MAX_PSI_RW 
+						      and (pre_psi1 + psi_dot_comm_1*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)] 
+	r_02b_ctrl = global :: always (pre_psi2 + psi_dot_comm_2*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi2 + psi_dot_comm_2*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02c_ctrl = global :: always (pre_psi3 + psi_dot_comm_3*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi3 + psi_dot_comm_3*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02d_ctrl = global :: always (pre_psi4 + psi_dot_comm_4*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi4 + psi_dot_comm_4*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	

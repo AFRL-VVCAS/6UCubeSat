@@ -1,0 +1,99 @@
+package Verified_Controller
+-- This is a PID controller for a 6U CubeSat 4 wheel pyramid configuration reaction wheel array 
+-- with requirements to limit the reaction wheel angular velocities and angular accelerations 
+-- in order to prevent damage to the reaction wheel array motors. 
+-- This architecture abstracts the calculation of the PID controller and just focuses on 
+-- adherence to requirements and refined requirements
+-- Kerianne H Gross, AFRL/RQQA, kerianne.gross@us.af.mil
+-- Last updated 17 Nov 2015
+
+public 
+   with Base_Types;
+   
+system Rate_Limited_PID_Controller
+	features -- document input and outputs
+		-- INPUTS
+	    -- angular velocity of the individual reaction wheels
+	    pre_psi1 : in data port Base_Types::Float; -- [rad/s]
+	    pre_psi2 : in data port Base_Types::Float; -- [rad/s]
+	    pre_psi3 : in data port Base_Types::Float; -- [rad/s]		
+	    pre_psi4 : in data port Base_Types::Float; -- [rad/s]
+	    --OUTPUTS
+	    -- Commanded change in angular velocity for reaction wheel
+	    psi_dot_comm_1 : out data port Base_Types::Float;	-- [rad/s^2]	
+	    psi_dot_comm_2 : out data port Base_Types::Float; 	-- [rad/s^2]		
+	    psi_dot_comm_3 : out data port Base_Types::Float; 	-- [rad/s^2]	
+	    psi_dot_comm_4 : out data port Base_Types::Float; 	-- [rad/s^2]	
+				
+	annex agree {**
+		----------------------------- REACTION WHEEL SPECIFICATIONS ---------------------------
+	    const MAX_PSI_DOT_RW : real = constants.MAX_PSI_DOT_RW; -- [rad_p_s_2]
+	    const MAX_PSI_RW : real = constants.MAX_PSI_RW; -- [rad_p_s]
+	    const SYSTEM_RATE : real = constants.SYSTEM_RATE; -- [Hz]
+	    const DELTA_T : real = constants.DELTA_T; --[s]
+	    
+	    --------------------------------- CONTROL ALGORITHM------------------------------------
+	    -- Abstracted commanded reaction wheel array calculations
+	    -- NOTE: a linear control law could go here 
+	    eq 	psi_dot_comm_1_calc : real;
+	    eq 	psi_dot_comm_2_calc : real;
+	    eq 	psi_dot_comm_3_calc : real;
+	    eq 	psi_dot_comm_4_calc : real;
+	    	    
+	    ------------------------------------ REQUIREMENTS -------------------------------------	    
+		-- R01 The commanded change of angular velocity from the control algorithm shall not 
+		-- exceed the maximum allowable angular acceleration of the reaction wheel.
+		guarantee 	"r_01a_ctrl: RW1 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_1 <= MAX_PSI_DOT_RW) and (psi_dot_comm_1 >= -MAX_PSI_DOT_RW);
+		guarantee 	"r_01b_ctrl: RW2 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_2 <= MAX_PSI_DOT_RW) and (psi_dot_comm_2 >= -MAX_PSI_DOT_RW);
+		guarantee 	"r_01c_ctrl: RW3 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_3 <= MAX_PSI_DOT_RW) and (psi_dot_comm_3 >= -MAX_PSI_DOT_RW);
+		guarantee 	"r_01d_ctrl: RW4 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_4 <= MAX_PSI_DOT_RW) and (psi_dot_comm_4 >= -MAX_PSI_DOT_RW);
+	    
+	    -- R02	The control algorithm prediction of reaction wheel angular velocity as a result 
+	    -- of the commanded change of angular velocity shall not exceed the maximum allowable 
+	    -- angular velocity of the reaction wheel.
+	    guarantee 	"r_02a_ctrl: The predicted RW1 angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi1 + psi_dot_comm_1*DELTA_T <= MAX_PSI_RW) and (pre_psi1 + psi_dot_comm_1*DELTA_T >= -MAX_PSI_RW);
+	    guarantee 	"r_02b_ctrl: The predicted RW2 angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi2 + psi_dot_comm_2*DELTA_T <= MAX_PSI_RW) and (pre_psi2 + psi_dot_comm_2*DELTA_T>= -MAX_PSI_RW);
+	    guarantee 	"r_02c_ctrl: The predicted RW3 angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi3 + psi_dot_comm_3*DELTA_T <= MAX_PSI_RW) and (pre_psi3 + psi_dot_comm_3*DELTA_T >= -MAX_PSI_RW);
+	    guarantee 	"r_02d_ctrl: The predicted RW4 angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi4 + psi_dot_comm_4*DELTA_T <= MAX_PSI_RW) and (pre_psi4 + psi_dot_comm_4*DELTA_T>= -MAX_PSI_RW); 
+		
+		------------------------------------ ASSUMPTIONS -------------------------------------	    
+		-- Limit model checking to situtaions where input RW velocity does not exceed max
+		assume   "The input velocity of RW1 is less than or equal to the max" :		
+		 	(pre_psi1 <= MAX_PSI_RW) and (pre_psi1 >= -MAX_PSI_RW);
+		assume   "The input velocity of RW2 is less than or equal to the max" :		
+		 	(pre_psi2 <= MAX_PSI_RW) and (pre_psi2 >= -MAX_PSI_RW);
+		assume   "The input velocity of RW3 is less than or equal to the max" :		
+		 	(pre_psi3 <= MAX_PSI_RW) and (pre_psi3 >= -MAX_PSI_RW);
+		assume   "The input velocity of RW4 is less than or equal to the max" :		
+		 	(pre_psi4 <= MAX_PSI_RW) and (pre_psi4 >= -MAX_PSI_RW);
+		 				
+	**};
+end Rate_Limited_PID_Controller;
+
+system implementation Rate_Limited_PID_Controller.Impl
+	annex agree {**
+	--------------------------------REFINED REQUIREMENTS---------------------------------------
+	-- If the calculated velocity is greater than max (or less -max), set the change to 0;
+	-- If the acceleration is greater than max (or less than -max), set it to max
+		eq psi_dot_1_act : real = 	if (pre_psi1 + psi_dot_comm_1_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else if (pre_psi1 + psi_dot_comm_1_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else if (psi_dot_comm_1_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else if (psi_dot_comm_1_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else psi_dot_comm_1_calc; 
+		eq psi_dot_2_act : real =	if (pre_psi2 + psi_dot_comm_2_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else if (pre_psi2 + psi_dot_comm_2_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else if (psi_dot_comm_2_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else if (psi_dot_comm_2_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else psi_dot_comm_2_calc;
+		eq psi_dot_3_act : real =	if (pre_psi3 + psi_dot_comm_3_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else if (pre_psi3 + psi_dot_comm_3_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else if (psi_dot_comm_3_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else if (psi_dot_comm_3_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else psi_dot_comm_3_calc;	
+		eq psi_dot_4_act : real =	if (pre_psi4 + psi_dot_comm_4_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else if (pre_psi4 + psi_dot_comm_4_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else if (psi_dot_comm_4_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else if (psi_dot_comm_4_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else psi_dot_comm_4_calc; 	
+		
+		-- Set reaction wheel commanded angular acceleration to values calculated above
+		assert(psi_dot_comm_1 = psi_dot_1_act);
+		assert(psi_dot_comm_2 = psi_dot_2_act);
+		assert(psi_dot_comm_3 = psi_dot_3_act);
+		assert(psi_dot_comm_4 = psi_dot_4_act);
+	**};
+end Rate_Limited_PID_Controller.Impl;
+
+end Verified_Controller;

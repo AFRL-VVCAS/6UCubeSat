@@ -1,0 +1,152 @@
+// Decision_Module.spear
+// This file contains the requirements of the decision module subsystem in the properties section
+// and refined requirements of the decision module subsystem in the requirements section.
+// This requirements set is abstract and doesn't include the control algorithm,
+// just how the decision module ensures limits are not violated.
+// It is assumed that 
+//    - the wheels are not already spinning above limits
+//    - the verified control has been formally proven not to violate the properties
+// Kerianne Hobbs Gross 
+// kerianne.gross@us.af.mil
+// Last Updated 27 Oct 2015
+
+Relation SixU_CubeSat_v2.Decision_Module;
+Uses SixU_CubeSat_v2.definitions.decision_module_output_type.*;
+Uses SixU_CubeSat_v2.definitions.*;
+
+
+Inputs: // input signals (states) to the decision module
+	
+	pre_psi1_in : real; // [rad_p_s (rad/s)]
+	pre_psi2_in : real; // [rad_p_s (rad/s)]
+	pre_psi3_in : real; // [rad_p_s (rad/s)]
+	pre_psi4_in : real; // [rad_p_s (rad/s)]
+	psi_dot_comm_1_verified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 1 (Verified)
+	psi_dot_comm_2_verified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 2 (Verified)
+	psi_dot_comm_3_verified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 3 (Verified)
+	psi_dot_comm_4_verified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 4 (Verified)
+	psi_dot_comm_1_unverified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 1 (Verified)
+	psi_dot_comm_2_unverified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 2 (Verified)
+	psi_dot_comm_3_unverified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 3 (Verified)
+	psi_dot_comm_4_unverified_in: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 4 (Verified)
+
+Outputs: // output commands of the controller
+	//Interface requirement: the control algorithm shall output a change of angular velocity command to each reaction wheel.
+	psi_dot_comm_dm : decision_module_output_type; // [rad/s^2]	
+	
+State: // variables
+	psi_dot_comm_1_dm : real;	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 1
+	psi_dot_comm_2_dm : real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 2	
+	psi_dot_comm_3_dm : real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 3
+	psi_dot_comm_4_dm : real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 4
+	violation: bool; //flag to say if a violation exists
+	
+Macros: 
+	//check to see if verified controller is violated
+	violation_flagged : bool = if pre(violation) == true
+						or (pre_psi1_in + psi_dot_comm_1_unverified_in*DELTA_T) >= MAX_PSI_RW 
+						or (pre_psi1_in + psi_dot_comm_1_unverified_in*DELTA_T) <= -MAX_PSI_RW 
+						or (pre_psi2_in + psi_dot_comm_2_unverified_in*DELTA_T) >= MAX_PSI_RW 
+						or (pre_psi2_in + psi_dot_comm_2_unverified_in*DELTA_T) <= -MAX_PSI_RW
+						or (pre_psi3_in + psi_dot_comm_3_unverified_in*DELTA_T) >= MAX_PSI_RW 
+						or (pre_psi3_in + psi_dot_comm_3_unverified_in*DELTA_T) <= -MAX_PSI_RW
+						or (pre_psi4_in + psi_dot_comm_4_unverified_in*DELTA_T) >= MAX_PSI_RW 
+						or (pre_psi4_in + psi_dot_comm_4_unverified_in*DELTA_T) <= -MAX_PSI_RW
+						or (psi_dot_comm_1_unverified_in >= MAX_PSI_DOT_RW) 
+						or (psi_dot_comm_1_unverified_in <= -MAX_PSI_DOT_RW)
+						or (psi_dot_comm_2_unverified_in >= MAX_PSI_DOT_RW) 
+						or (psi_dot_comm_2_unverified_in <= -MAX_PSI_DOT_RW)
+						or (psi_dot_comm_3_unverified_in >= MAX_PSI_DOT_RW) 
+						or (psi_dot_comm_3_unverified_in <= -MAX_PSI_DOT_RW)
+						or (psi_dot_comm_4_unverified_in >= MAX_PSI_DOT_RW) 
+						or (psi_dot_comm_4_unverified_in <= -MAX_PSI_DOT_RW)
+						then true 
+						else false;
+			
+	psi_dot_1_select : real = if violation then psi_dot_comm_1_verified_in
+						//else if (psi_dot_comm_1_unverified_in >= MAX_PSI_DOT_RW) then psi_dot_comm_1_verified_in
+						//else if (psi_dot_comm_1_unverified_in <= -MAX_PSI_DOT_RW) then psi_dot_comm_1_verified_in
+						//else if (pre_psi1_in + psi_dot_comm_1_unverified_in*DELTA_T >= MAX_PSI_RW) then psi_dot_comm_1_verified_in
+						//else if (pre_psi1_in + psi_dot_comm_1_unverified_in*DELTA_T <= -MAX_PSI_RW) then psi_dot_comm_1_verified_in
+						else psi_dot_comm_1_unverified_in;
+	psi_dot_2_select : real =	if violation then psi_dot_comm_2_verified_in
+						//else if (psi_dot_comm_2_unverified_in >= MAX_PSI_DOT_RW) then psi_dot_comm_2_verified_in
+						//else if (psi_dot_comm_2_unverified_in <= -MAX_PSI_DOT_RW) then psi_dot_comm_2_verified_in
+						//else if (pre_psi2_in + psi_dot_comm_2_unverified_in*DELTA_T >= MAX_PSI_RW) then psi_dot_comm_2_verified_in
+						//else if (pre_psi2_in + psi_dot_comm_2_unverified_in*DELTA_T <= -MAX_PSI_RW) then psi_dot_comm_2_verified_in
+						else psi_dot_comm_2_unverified_in;
+	psi_dot_3_select : real =	if violation then psi_dot_comm_3_verified_in
+						//else if (psi_dot_comm_3_unverified_in >= MAX_PSI_DOT_RW) then psi_dot_comm_3_verified_in
+						//else if (psi_dot_comm_3_unverified_in <= -MAX_PSI_DOT_RW) then psi_dot_comm_3_verified_in
+						//else if (pre_psi3_in + psi_dot_comm_3_unverified_in*DELTA_T >= MAX_PSI_RW) then psi_dot_comm_3_verified_in
+						//else if (pre_psi3_in + psi_dot_comm_3_unverified_in*DELTA_T <= -MAX_PSI_RW) then psi_dot_comm_3_verified_in
+						else psi_dot_comm_3_unverified_in;
+	psi_dot_4_select : real =	if violation then psi_dot_comm_4_verified_in
+						//else if (psi_dot_comm_4_unverified_in >= MAX_PSI_DOT_RW) then psi_dot_comm_4_verified_in
+						//else if (psi_dot_comm_4_unverified_in <= -MAX_PSI_DOT_RW) then psi_dot_comm_4_verified_in
+						//else if (pre_psi4_in + psi_dot_comm_4_unverified_in*DELTA_T >= MAX_PSI_RW) then psi_dot_comm_4_verified_in
+						//else if (pre_psi4_in + psi_dot_comm_4_unverified_in*DELTA_T <= -MAX_PSI_RW) then psi_dot_comm_4_verified_in
+						else psi_dot_comm_4_unverified_in;						
+	   
+Requirements: //Assumptions and Refined Requirements at the Subsystem Level
+	// ASSUMPTIONS (on the inputs)
+	// We assume that the previous (sensed) reaction wheel speed is not in excess of the max
+	a_pre_psi1 = global :: always pre_psi1_in <= MAX_PSI_RW and pre_psi1_in >= -MAX_PSI_RW; // Wheel 1	
+	a_pre_psi2 = global :: always pre_psi2_in <= MAX_PSI_RW and pre_psi2_in >= -MAX_PSI_RW; // Wheel 2	
+	a_pre_psi3 = global :: always pre_psi3_in <= MAX_PSI_RW and pre_psi3_in >= -MAX_PSI_RW; // Wheel 3	
+	a_pre_psi4 = global :: always pre_psi4_in <= MAX_PSI_RW and pre_psi4_in >= -MAX_PSI_RW; // Wheel 4
+	
+	//We assume the verified controller meets properties
+	a_psi_dot_comm_1_verified = global :: always psi_dot_comm_1_verified_in <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_1_verified_in >= -MAX_PSI_DOT_RW
+							  and (pre_psi1_in + psi_dot_comm_1_verified_in*DELTA_T) >= -MAX_PSI_RW 
+							  and (pre_psi1_in + psi_dot_comm_1_verified_in*DELTA_T) <= MAX_PSI_RW; //[rad_p_s_2 (rad/s^2)]
+	a_psi_dot_comm_2_verified = global :: always psi_dot_comm_2_verified_in <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_2_verified_in >= -MAX_PSI_DOT_RW
+							  and (pre_psi2_in + psi_dot_comm_2_verified_in*DELTA_T) >= -MAX_PSI_RW 
+							  and (pre_psi2_in + psi_dot_comm_2_verified_in*DELTA_T) <= MAX_PSI_RW; //[rad_p_s_2 (rad/s^2)]
+	a_psi_dot_comm_3_verified = global :: always psi_dot_comm_3_verified_in <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_3_verified_in >= -MAX_PSI_DOT_RW
+							  and (pre_psi3_in + psi_dot_comm_3_verified_in*DELTA_T) >= -MAX_PSI_RW 
+							  and (pre_psi3_in + psi_dot_comm_3_verified_in*DELTA_T) <= MAX_PSI_RW; //[rad_p_s_2 (rad/s^2)]
+	a_psi_dot_comm_4_verified = global :: always psi_dot_comm_4_verified_in <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_4_verified_in >= -MAX_PSI_DOT_RW
+							  and (pre_psi4_in + psi_dot_comm_4_verified_in*DELTA_T) >= -MAX_PSI_RW 
+							  and (pre_psi4_in + psi_dot_comm_4_verified_in*DELTA_T) <= MAX_PSI_RW; //[rad_p_s_2 (rad/s^2)]	
+							   
+										  						  
+	// REFINED REQUIREMENTS
+	//Set reaction wheel commanded angular velocity to values calculated in Macros
+	r_psi_dot_comm_1 = global :: always psi_dot_comm_1_dm == psi_dot_1_select; // Wheel 1
+	r_psi_dot_comm_2 = global :: always psi_dot_comm_2_dm == psi_dot_2_select; // Wheel 2
+	r_psi_dot_comm_3 = global :: always psi_dot_comm_3_dm == psi_dot_3_select; // Wheel 3
+	r_psi_dot_comm_4 = global :: always psi_dot_comm_4_dm == psi_dot_4_select; // Wheel 4
+	r_violated = global :: always violation == violation_flagged;
+	r_output_ctrl_dm = global :: always psi_dot_comm_dm == new decision_module_output_type{psi_dot_comm_1_dm = psi_dot_comm_1_dm, psi_dot_comm_2_dm = psi_dot_comm_2_dm, psi_dot_comm_3_dm = psi_dot_comm_3_dm, psi_dot_comm_4_dm = psi_dot_comm_4_dm};
+	
+	
+Properties: //System Level Requirements
+
+	//R01 The commanded change of angular velocity from the control algorithm shall not exceed the maximum allowable 
+	// angular acceleration of the reaction wheel.
+	r_01a_ctrl_dm = global :: always psi_dot_comm_1_dm <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_1_dm >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01b_ctrl_dm = global :: always psi_dot_comm_2_dm <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_2_dm >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01c_ctrl_dm = global :: always psi_dot_comm_3_dm <= MAX_PSI_DOT_RW 
+		  					  and psi_dot_comm_3_dm >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01d_ctrl_dm = global :: always psi_dot_comm_4_dm <= MAX_PSI_DOT_RW 	
+							  and psi_dot_comm_4_dm >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+
+	//R02 The control algorithm prediction of reaction wheel angular velocity as a result 
+	//of the commanded change of angular velocity shall not exceed the maximum allowable 
+	//angular velocity of the reaction wheel.
+	r_02a_ctrl_dm = global :: always (pre_psi1_in + psi_dot_comm_1_dm*DELTA_T) <= MAX_PSI_RW 
+						      and (pre_psi1_in + psi_dot_comm_1_dm*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)] 
+	r_02b_ctrl_dm = global :: always (pre_psi2_in + psi_dot_comm_2_dm*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi2_in + psi_dot_comm_2_dm*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02c_ctrl_dm = global :: always (pre_psi3_in + psi_dot_comm_3_dm*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi3_in + psi_dot_comm_3_dm*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02d_ctrl_dm = global :: always (pre_psi4_in + psi_dot_comm_4_dm*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi4_in + psi_dot_comm_4_dm*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	
