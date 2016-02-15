@@ -1,0 +1,128 @@
+package RTA_Controller
+-- The RTA Controller builds an implementation by composing the verified controller, unverified 
+-- controller, and decision module. 
+-- Desired properties of the RTA controller are presented.
+
+-- Kerianne H Gross, AFRL/RQQA, kerianne.gross@us.af.mil
+-- Last updated 17 Nov 2015
+public 
+   with Base_Types;
+   with std;
+   with constants;
+   with Decision_Module;
+   with Unverified_Controller;
+   with Verified_Controller;
+   
+system RTA_Controller
+	features
+	
+	-- INPUTS
+	-- angular velocity of the individual reaction wheels
+	pre_psi1 : in data port Base_Types::Float; -- [rad/s]
+	pre_psi2 : in data port Base_Types::Float; -- [rad/s]
+	pre_psi3 : in data port Base_Types::Float; -- [rad/s]		
+	pre_psi4 : in data port Base_Types::Float; -- [rad/s]
+	--OUTPUTS
+	-- Decision Module commanded change in angular velocity for reaction wheel
+	psi_dot_comm_1 : out data port Base_Types::Float;	-- [rad/s^2]	
+	psi_dot_comm_2 : out data port Base_Types::Float; 	-- [rad/s^2]		
+	psi_dot_comm_3 : out data port Base_Types::Float; 	-- [rad/s^2]	
+	psi_dot_comm_4 : out data port Base_Types::Float; 	-- [rad/s^2]	
+		
+	annex agree {**
+	----------------------------- REACTION WHEEL SPECIFICATIONS ---------------------------
+	const MAX_PSI_DOT_RW : real = constants.MAX_PSI_DOT_RW; -- [rad_p_s_2]
+	const MAX_PSI_RW : real = constants.MAX_PSI_RW; -- [rad_p_s]
+	const SYSTEM_RATE : real = constants.SYSTEM_RATE; -- [Hz]
+	const DELTA_T : real = constants.DELTA_T; --[s]
+		
+    ------------------------------------ REQUIREMENTS -------------------------------------	    
+	-- R01 The commanded change of angular velocity from the control algorithm shall not 
+	-- exceed the maximum allowable angular acceleration of the reaction wheel.
+	guarantee 	"r_01a_ctrl_rta: RW1 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+		true -> ((psi_dot_comm_1 <= MAX_PSI_DOT_RW) and (psi_dot_comm_1 >= -MAX_PSI_DOT_RW));
+	guarantee 	"r_01b_ctrl_rta: RW2 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+		(psi_dot_comm_2 <= MAX_PSI_DOT_RW) and (psi_dot_comm_2 >= -MAX_PSI_DOT_RW);
+	guarantee 	"r_01c_ctrl_rta: RW3 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+		(psi_dot_comm_3 <= MAX_PSI_DOT_RW) and (psi_dot_comm_3 >= -MAX_PSI_DOT_RW);
+	guarantee 	"r_01d_ctrl_rta: RW4 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+		(psi_dot_comm_4 <= MAX_PSI_DOT_RW) and (psi_dot_comm_4 >= -MAX_PSI_DOT_RW);
+	    
+	-- R02	The control algorithm prediction of reaction wheel angular velocity as a result 
+	-- of the commanded change of angular velocity shall not exceed the maximum allowable 
+	-- angular velocity of the reaction wheel.
+	guarantee 	"r_02a_ctrl_rta: The predicted reaction wheel angular velocity shall not exceed maximum allowable angular velocity" : 
+		(pre_psi1 + psi_dot_comm_1*DELTA_T <= MAX_PSI_RW) and (pre_psi1 + psi_dot_comm_1*DELTA_T >= -MAX_PSI_RW);
+	guarantee 	"r_02b_ctrl_rta: The predicted reaction wheel angular velocity shall not exceed maximum allowable angular velocity" : 
+		(pre_psi2 + psi_dot_comm_2*DELTA_T <= MAX_PSI_RW) and (pre_psi2 + psi_dot_comm_2*DELTA_T>= -MAX_PSI_RW);
+	guarantee 	"r_02c_ctrl_rta: The predicted reaction wheel angular velocity shall not exceed maximum allowable angular velocity" : 
+		(pre_psi3 + psi_dot_comm_3*DELTA_T <= MAX_PSI_RW) and (pre_psi3 + psi_dot_comm_3*DELTA_T >= -MAX_PSI_RW);
+	guarantee 	"r_02d_ctrl_rta: The predicted reaction wheel angular velocity  shall not exceed maximum allowable angular velocity" : 
+		(pre_psi4 + psi_dot_comm_4*DELTA_T <= MAX_PSI_RW) and (pre_psi4 + psi_dot_comm_4*DELTA_T>= -MAX_PSI_RW); 
+	
+	------------------------------------ ASSUMPTIONS -------------------------------------	
+	assume   "The Initial velocity of wheel 1 is less than the max" :		
+	 	(pre_psi1 <= MAX_PSI_RW) and (pre_psi1 >= -MAX_PSI_RW);
+	assume   "The Initial velocity of wheel 2 is less than the max" :		
+	 	(pre_psi2 <= MAX_PSI_RW) and (pre_psi2 >= -MAX_PSI_RW);
+	assume   "The Initial velocity of wheel 3 is less than the max" :		
+	 	(pre_psi3 <= MAX_PSI_RW) and (pre_psi3 >= -MAX_PSI_RW);
+	assume   "The Initial velocity of wheel 4 is less than the max" :		
+	 	(pre_psi4 <= MAX_PSI_RW) and (pre_psi4 >= -MAX_PSI_RW);
+	 		
+	**};
+end RTA_Controller;
+
+system implementation RTA_Controller.Impl
+	subcomponents
+		DM_sub : system Decision_Module::Decision_Module_2_Controller.Impl;
+		UNV_sub : system Unverified_Controller::PID_controller_not_rate_limited_package.Impl;
+		VER_sub: system Verified_Controller::Rate_Limited_PID_Controller.Impl;
+
+	connections
+	
+		-- Decision Module to RTA Output
+		DM_sub_1_to_OUT_1: port DM_sub.psi_dot_comm_1_dm -> psi_dot_comm_1 {Communication_Properties::Timing => immediate;};
+		DM_sub_2_to_OUT_2: port DM_sub.psi_dot_comm_2_dm -> psi_dot_comm_2 {Communication_Properties::Timing => immediate;};
+		DM_sub_3_to_OUT_3: port DM_sub.psi_dot_comm_3_dm -> psi_dot_comm_3 {Communication_Properties::Timing => immediate;};
+		DM_sub_4_to_OUT_4: port DM_sub.psi_dot_comm_4_dm -> psi_dot_comm_4 {Communication_Properties::Timing => immediate;};
+		
+		-- Unverified Controller to Decision Module
+		UNV_Sub_1_to_DM_Sub_1: port UNV_sub.psi_dot_comm_1 -> DM_sub.psi_dot_comm_1_unverified_in {Communication_Properties::Timing => immediate;};
+		UNV_Sub_2_to_DM_Sub_2: port UNV_sub.psi_dot_comm_2 -> DM_sub.psi_dot_comm_2_unverified_in {Communication_Properties::Timing => immediate;};
+		UNV_Sub_3_to_DM_Sub_3: port UNV_sub.psi_dot_comm_3 -> DM_sub.psi_dot_comm_3_unverified_in {Communication_Properties::Timing => immediate;};
+		UNV_Sub_4_to_DM_Sub_4: port UNV_sub.psi_dot_comm_4 -> DM_sub.psi_dot_comm_4_unverified_in {Communication_Properties::Timing => immediate;};
+		
+		-- Verified Controller to Decision Module
+		VER_Sub_1_to_DM_Sub_1: port VER_sub.psi_dot_comm_1 -> DM_sub.psi_dot_comm_1_verified_in {Communication_Properties::Timing => immediate;};
+		VER_Sub_2_to_DM_Sub_2: port VER_sub.psi_dot_comm_2 -> DM_sub.psi_dot_comm_2_verified_in {Communication_Properties::Timing => immediate;};
+		VER_Sub_3_to_DM_Sub_3: port VER_sub.psi_dot_comm_3 -> DM_sub.psi_dot_comm_3_verified_in {Communication_Properties::Timing => immediate;};
+		VER_Sub_4_to_DM_Sub_4: port VER_sub.psi_dot_comm_4 -> DM_sub.psi_dot_comm_4_verified_in {Communication_Properties::Timing => immediate;};
+		
+		-- State to Decision Module
+		State_1_to_DM_1: port pre_psi1 -> DM_sub.pre_psi1_in {Communication_Properties::Timing => immediate;};
+		State_2_to_DM_2: port pre_psi2 -> DM_sub.pre_psi2_in {Communication_Properties::Timing => immediate;};
+		State_3_to_DM_3: port pre_psi3 -> DM_sub.pre_psi3_in {Communication_Properties::Timing => immediate;};
+		State_4_to_DM_4: port pre_psi4 -> DM_sub.pre_psi4_in {Communication_Properties::Timing => immediate;};
+
+		-- State to Verified Controller
+		State_1_to_VER_1: port pre_psi1 -> VER_sub.pre_psi1 {Communication_Properties::Timing => immediate;};
+		State_2_to_VER_2: port pre_psi2 -> VER_sub.pre_psi2 {Communication_Properties::Timing => immediate;};
+		State_3_to_VER_3: port pre_psi3 -> VER_sub.pre_psi3 {Communication_Properties::Timing => immediate;};
+		State_4_to_VER_4: port pre_psi4 -> VER_sub.pre_psi4 {Communication_Properties::Timing => immediate;};
+	
+		-- State to Unverified Controller
+		State_1_to_UNV_1: port pre_psi1 -> UNV_sub.pre_psi1 {Communication_Properties::Timing => immediate;};
+		State_2_to_UNV_2: port pre_psi2 -> UNV_sub.pre_psi2 {Communication_Properties::Timing => immediate;};
+		State_3_to_UNV_3: port pre_psi3 -> UNV_sub.pre_psi3 {Communication_Properties::Timing => immediate;};
+		State_4_to_UNV_4: port pre_psi4 -> UNV_sub.pre_psi4 {Communication_Properties::Timing => immediate;};
+			
+		annex agree {**
+			assert (psi_dot_comm_1 = DM_sub.psi_dot_comm_1_dm);
+	
+	**};
+		
+		
+end RTA_Controller.Impl;
+
+end RTA_Controller;

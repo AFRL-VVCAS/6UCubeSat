@@ -1,0 +1,155 @@
+package Decision_Module
+-- This is a Decision Module for a 6U CubeSat 4 wheel pyramid configuration reaction wheel array 
+-- with inputs of system state, and a commanded angular acceleration vector for each of the 
+-- wheels from a verified and unverified controller. 
+
+-- Kerianne H Gross, AFRL/RQQA, kerianne.gross@us.af.mil
+-- Last updated 17 Nov 2015
+
+public 
+   with Base_Types;
+   
+system Decision_Module_2_Controller
+	features -- document input and outputs
+		-- INPUTS
+	    -- angular velocity of the individual reaction wheels
+	    pre_psi1_in : in data port Base_Types::Float; -- [rad/s]
+	    pre_psi2_in : in data port Base_Types::Float; -- [rad/s]
+	    pre_psi3_in : in data port Base_Types::Float; -- [rad/s]		
+	    pre_psi4_in : in data port Base_Types::Float; -- [rad/s]
+	    -- Verified Controller Commanded change in angular velocity for reaction wheel
+	    psi_dot_comm_1_verified_in : in data port Base_Types::Float;	-- [rad/s^2]	
+	    psi_dot_comm_2_verified_in : in data port Base_Types::Float; 	-- [rad/s^2]		
+	    psi_dot_comm_3_verified_in : in data port Base_Types::Float; 	-- [rad/s^2]	
+	    psi_dot_comm_4_verified_in : in data port Base_Types::Float; 	-- [rad/s^2]	
+		-- Unverified Controller Commanded change in angular velocity for reaction wheel
+	    psi_dot_comm_1_unverified_in : in data port Base_Types::Float;	-- [rad/s^2]	
+	    psi_dot_comm_2_unverified_in : in data port Base_Types::Float; 	-- [rad/s^2]		
+	    psi_dot_comm_3_unverified_in : in data port Base_Types::Float; 	-- [rad/s^2]	
+	    psi_dot_comm_4_unverified_in : in data port Base_Types::Float; 	-- [rad/s^2]	
+		--OUTPUTS
+	    -- Decision Module commanded change in angular velocity for reaction wheel
+	    psi_dot_comm_1_dm : out data port Base_Types::Float;	    -- [rad/s^2]	
+	    psi_dot_comm_2_dm : out data port Base_Types::Float; 	-- [rad/s^2]		
+	    psi_dot_comm_3_dm : out data port Base_Types::Float; 	-- [rad/s^2]	
+	    psi_dot_comm_4_dm : out data port Base_Types::Float; 	-- [rad/s^2]	
+				
+	annex agree {**
+		----------------------------- REACTION WHEEL SPECIFICATIONS ---------------------------
+	    const MAX_PSI_DOT_RW : real = constants.MAX_PSI_DOT_RW; -- [rad_p_s_2]
+	    const MAX_PSI_RW : real = constants.MAX_PSI_RW; -- [rad_p_s]
+	    const SYSTEM_RATE : real = constants.SYSTEM_RATE; -- [Hz]
+	    const DELTA_T : real = constants.DELTA_T; --[s]
+	    
+	    --------------------------------- CONTROL ALGORITHM------------------------------------
+		eq violation : bool = 
+			if pre(violation) = true
+			or (pre_psi1_in + psi_dot_comm_1_unverified_in*DELTA_T) > MAX_PSI_RW 
+			or (pre_psi1_in + psi_dot_comm_1_unverified_in*DELTA_T) < -MAX_PSI_RW 
+			or (pre_psi2_in + psi_dot_comm_2_unverified_in*DELTA_T) > MAX_PSI_RW 
+			or (pre_psi2_in + psi_dot_comm_2_unverified_in*DELTA_T) < -MAX_PSI_RW
+			or (pre_psi3_in + psi_dot_comm_3_unverified_in*DELTA_T) > MAX_PSI_RW 
+			or (pre_psi3_in + psi_dot_comm_3_unverified_in*DELTA_T) < -MAX_PSI_RW
+			or (pre_psi4_in + psi_dot_comm_4_unverified_in*DELTA_T) > MAX_PSI_RW 
+			or (pre_psi4_in + psi_dot_comm_4_unverified_in*DELTA_T) < -MAX_PSI_RW
+			or (psi_dot_comm_1_unverified_in > MAX_PSI_DOT_RW) 
+			or (psi_dot_comm_1_unverified_in < -MAX_PSI_DOT_RW)
+			or (psi_dot_comm_2_unverified_in > MAX_PSI_DOT_RW) 
+			or (psi_dot_comm_2_unverified_in < -MAX_PSI_DOT_RW)
+			or (psi_dot_comm_3_unverified_in > MAX_PSI_DOT_RW) 
+			or (psi_dot_comm_3_unverified_in < -MAX_PSI_DOT_RW)
+			or (psi_dot_comm_4_unverified_in > MAX_PSI_DOT_RW) 
+			or (psi_dot_comm_4_unverified_in < -MAX_PSI_DOT_RW)
+			then true else
+			false;
+		eq psi_dot_1_select : real = if violation then psi_dot_comm_1_verified_in
+			else psi_dot_comm_1_unverified_in;
+		eq psi_dot_2_select : real =	if violation then psi_dot_comm_2_verified_in
+			else psi_dot_comm_2_unverified_in;
+		eq psi_dot_3_select : real =	if violation then psi_dot_comm_3_verified_in
+			else psi_dot_comm_3_unverified_in;
+		eq psi_dot_4_select : real =	if violation then psi_dot_comm_4_verified_in
+			else psi_dot_comm_4_unverified_in;
+	    
+	    ------------------------------------ REQUIREMENTS -------------------------------------	    
+		-- R01 The commanded change of angular velocity from the control algorithm shall not 
+		-- exceed the maximum allowable angular acceleration of the reaction wheel.
+		guarantee 	"r_01a_dm: RW1 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_1_dm <= MAX_PSI_DOT_RW) and (psi_dot_comm_1_dm >= -MAX_PSI_DOT_RW);
+		guarantee 	"r_01b_dm: RW2 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_2_dm <= MAX_PSI_DOT_RW) and (psi_dot_comm_2_dm >= -MAX_PSI_DOT_RW);
+		guarantee 	"r_01c_dm: RW3 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_3_dm <= MAX_PSI_DOT_RW) and (psi_dot_comm_3_dm >= -MAX_PSI_DOT_RW);
+		guarantee 	"r_01d_dm: RW4 commanded angular acceleration shall not exceed maximum allowable angular acceleration" : 
+					(psi_dot_comm_4_dm <= MAX_PSI_DOT_RW) and (psi_dot_comm_4_dm >= -MAX_PSI_DOT_RW);
+	    
+	    -- R02	The control algorithm prediction of reaction wheel angular velocity as a result 
+	    -- of the commanded change of angular velocity shall not exceed the maximum allowable 
+	    -- angular velocity of the reaction wheel.
+	    guarantee 	"r_02a_ctrl: The predicted reaction wheel angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi1_in + psi_dot_comm_1_dm*DELTA_T <= MAX_PSI_RW) and (pre_psi1_in + psi_dot_comm_1_dm*DELTA_T >= -MAX_PSI_RW);
+	    guarantee 	"r_02b_ctrl: The predicted reaction wheel angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi2_in + psi_dot_comm_2_dm*DELTA_T <= MAX_PSI_RW) and (pre_psi2_in + psi_dot_comm_2_dm*DELTA_T>= -MAX_PSI_RW);
+	    guarantee 	"r_02c_ctrl: The predicted reaction wheel angular velocity shall not exceed maximum allowable angular velocity" : 
+					(pre_psi3_in + psi_dot_comm_3_dm*DELTA_T <= MAX_PSI_RW) and (pre_psi3_in + psi_dot_comm_3_dm*DELTA_T >= -MAX_PSI_RW);
+	    guarantee 	"r_02d_ctrl: The predicted reaction wheel angular velocity  shall not exceed maximum allowable angular velocity" : 
+					(pre_psi4_in + psi_dot_comm_4_dm*DELTA_T <= MAX_PSI_RW) and (pre_psi4_in + psi_dot_comm_4_dm*DELTA_T>= -MAX_PSI_RW);
+					
+		-- Guarantee the verified or unerified controller output is the output of the decision module
+		guarantee	"Output 1 is either verified or unverified" :
+			(psi_dot_comm_1_dm = psi_dot_comm_1_verified_in) or (psi_dot_comm_1_dm = psi_dot_comm_1_unverified_in);
+		guarantee	"Output 2 is either verified or unverified" :
+			(psi_dot_comm_2_dm = psi_dot_comm_2_verified_in) or (psi_dot_comm_2_dm = psi_dot_comm_2_unverified_in);
+		guarantee	"Output 3 is either verified or unverified" :
+			(psi_dot_comm_3_dm = psi_dot_comm_3_verified_in) or (psi_dot_comm_3_dm = psi_dot_comm_3_unverified_in);
+		guarantee	"Output 4 is either verified or unverified" :
+			(psi_dot_comm_4_dm = psi_dot_comm_4_verified_in) or (psi_dot_comm_4_dm = psi_dot_comm_4_unverified_in);
+
+		-- Constrain the solution space to inputs which do not already violate safety properties
+		assume   "The Initial velocity of wheel 1 is less than the max" :		
+		 	(pre_psi1_in <= MAX_PSI_RW) and (pre_psi1_in >= -MAX_PSI_RW);
+		assume   "The Initial velocity of wheel 2 is less than the max" :		
+		 	(pre_psi2_in <= MAX_PSI_RW) and (pre_psi2_in >= -MAX_PSI_RW);
+		assume   "The Initial velocity of wheel 3 is less than the max" :		
+		 	(pre_psi3_in <= MAX_PSI_RW) and (pre_psi3_in >= -MAX_PSI_RW);
+		assume   "The Initial velocity of wheel 4 is less than the max" :		
+		 	(pre_psi4_in <= MAX_PSI_RW) and (pre_psi4_in >= -MAX_PSI_RW);
+		
+		--We assume the verified controller meets properties
+		assume "The verified controller wheel 1 command meets properties" : 
+		 	psi_dot_comm_1_verified_in <= MAX_PSI_DOT_RW 
+		 	and psi_dot_comm_1_verified_in >= -MAX_PSI_DOT_RW 
+		 	and (pre_psi1_in + psi_dot_comm_1_verified_in*DELTA_T) >= -MAX_PSI_RW
+		 	and (pre_psi1_in + psi_dot_comm_1_verified_in*DELTA_T) <= MAX_PSI_RW; 
+		assume "The verified controller wheel 2 command meets properties" :
+		 	psi_dot_comm_2_verified_in <= MAX_PSI_DOT_RW 
+			and psi_dot_comm_2_verified_in >= -MAX_PSI_DOT_RW
+			and (pre_psi2_in + psi_dot_comm_2_verified_in*DELTA_T) >= -MAX_PSI_RW 
+			and (pre_psi2_in + psi_dot_comm_2_verified_in*DELTA_T) <= MAX_PSI_RW; 
+		assume "The verified controller wheel 3 command meets properties" :
+			psi_dot_comm_3_verified_in <= MAX_PSI_DOT_RW 
+			and psi_dot_comm_3_verified_in >= -MAX_PSI_DOT_RW
+			and (pre_psi3_in + psi_dot_comm_3_verified_in*DELTA_T) >= -MAX_PSI_RW 
+			and (pre_psi3_in + psi_dot_comm_3_verified_in*DELTA_T) <= MAX_PSI_RW; 
+		assume "The verified controller wheel 4 command meets properties" :
+			psi_dot_comm_4_verified_in <= MAX_PSI_DOT_RW 
+			and psi_dot_comm_4_verified_in >= -MAX_PSI_DOT_RW
+			and (pre_psi4_in + psi_dot_comm_4_verified_in*DELTA_T) >= -MAX_PSI_RW 
+			and (pre_psi4_in + psi_dot_comm_4_verified_in*DELTA_T) <= MAX_PSI_RW; 
+				
+	**};
+end Decision_Module_2_Controller;
+
+system implementation Decision_Module_2_Controller.Impl
+	annex agree {**
+	
+		-- Set reaction wheel commanded angular acceleration to values calculated above
+		assert(psi_dot_comm_1_dm = psi_dot_1_select);
+		assert(psi_dot_comm_2_dm = psi_dot_2_select);
+		assert(psi_dot_comm_3_dm = psi_dot_3_select);
+		assert(psi_dot_comm_4_dm = psi_dot_4_select);
+
+	**};
+end Decision_Module_2_Controller.Impl;
+
+end Decision_Module;

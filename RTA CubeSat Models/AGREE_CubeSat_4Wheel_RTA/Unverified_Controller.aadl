@@ -1,0 +1,63 @@
+package Unverified_Controller
+-- This is a PID controller for a 6u CubeSat 4 wheel pyramid reaction wheel array 
+-- This architecture abstracts the calculation of the PID controller and just focuses on 
+-- adherence to requirements and refined requirements
+--
+-- The unverified controller has no refined (derived) requirements
+--
+-- Kerianne H Gross, AFRL RQQA
+-- Last updated 14 Oct 2015
+
+public 
+   with Base_Types;
+   
+system PID_controller_not_rate_limited_package
+	features -- document input and outputs
+		-- INPUTS
+	    -- angular velocity of the individual reaction wheels
+	    pre_psi1 : in data port Base_Types::Float; -- [rad/s]
+	    pre_psi2 : in data port Base_Types::Float; -- [rad/s]
+	    pre_psi3 : in data port Base_Types::Float; -- [rad/s]		
+	    pre_psi4 : in data port Base_Types::Float; -- [rad/s]
+	    --OUTPUTS
+	    -- Commanded change in angular velocity for reaction wheel
+	    psi_dot_comm_1 : out data port Base_Types::Float;	-- [rad/s^2]	
+	    psi_dot_comm_2 : out data port Base_Types::Float; 	-- [rad/s^2]		
+	    psi_dot_comm_3 : out data port Base_Types::Float; 	-- [rad/s^2]	
+	    psi_dot_comm_4 : out data port Base_Types::Float; 	-- [rad/s^2]	
+				
+	annex agree {**
+		----------------------------- REACTION WHEEL SPECIFICATIONS ---------------------------
+	    const MAX_PSI_DOT_RW : real = constants.MAX_PSI_DOT_RW; -- [rad_p_s_2]
+	    const MAX_PSI_RW : real = constants.MAX_PSI_RW; -- [rad_p_s]
+	    const SYSTEM_RATE : real = constants.SYSTEM_RATE; -- [Hz]
+	    const DELTA_T : real = constants.DELTA_T; --[s]
+	    
+	    --------------------------------- CONTROL ALGORITHM------------------------------------
+	    -- Abstracted commanded reaction wheel array calculations
+	    -- NOTE: a linear control law could go here 
+	    eq 	psi_dot_comm_1_calc : real;
+	    eq 	psi_dot_comm_2_calc : real;
+	    eq 	psi_dot_comm_3_calc : real;
+	    eq 	psi_dot_comm_4_calc : real;
+	 				
+	**};
+end PID_controller_not_rate_limited_package;
+
+system implementation PID_controller_not_rate_limited_package.Impl
+	annex agree {**
+
+		eq psi_dot_1_act : real = 	psi_dot_comm_1_calc;
+		eq psi_dot_2_act : real = 	psi_dot_comm_2_calc;
+		eq psi_dot_3_act : real = 	psi_dot_comm_3_calc;
+		eq psi_dot_4_act : real = 	psi_dot_comm_4_calc;
+		
+		-- Set reaction wheel commanded angular acceleration to values calculated above
+		assert(psi_dot_comm_1 = psi_dot_1_act);
+		assert(psi_dot_comm_2 = psi_dot_2_act);
+		assert(psi_dot_comm_3 = psi_dot_3_act);
+		assert(psi_dot_comm_4 = psi_dot_4_act);
+	**};
+end PID_controller_not_rate_limited_package.Impl;
+
+end Unverified_Controller;

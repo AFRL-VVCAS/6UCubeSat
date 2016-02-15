@@ -1,0 +1,70 @@
+// Unverified_Controller.spear
+// This file contains the requirements of the control subsystem in the properties section
+// and refined requirements of the control subsystem in the requirements section.
+// This requirements set is abstract and doesn't include the PID control algorithm,
+// just how the controller ensures limits are not violated.
+// In this case, there are no refined (or derived) requirements for the unverified controller
+// Kerianne Hobbs Gross 
+// kerianne.gross@us.af.mil
+// Last Updated 27 Oct 2015
+
+Relation SixU_CubeSat_v2.Unverified_Controller;
+Uses SixU_CubeSat_v2.definitions.unverified_controller_output_type.*;
+Uses SixU_CubeSat_v2.definitions.*;
+
+
+Inputs: // input signals (states) to the controller
+	// angular velocity of the individual reaction wheels at the previous time step 
+	// (from the Hall Sensors)
+	pre_psi1 : real; // [rad_p_s (rad/s)]
+	pre_psi2 : real; // [rad_p_s (rad/s)]
+	pre_psi3 : real; // [rad_p_s (rad/s)]
+	pre_psi4 : real; // [rad_p_s (rad/s)]
+
+Outputs: // output commands of the controller
+	//Interface requirement: the control algorithm shall output a change of angular velocity command to each reaction wheel.
+	psi_dot_comm_unv : unverified_controller_output_type; // [rad/s^2]	
+	
+State: // variables
+	psi_dot_comm_1_unv: real;	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 1
+	psi_dot_comm_2_unv: real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 2	
+	psi_dot_comm_3_unv: real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 3
+	psi_dot_comm_4_unv: real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 4	
+	   
+Requirements: //Assumptions and Refined Requirements at the Subsystem Level
+	// ASSUMPTIONS (on the inputs)
+	// We assume that the previous (sensed) reaction wheel speed is not in excess of the max
+	a_pre_psi1 = global :: always pre_psi1 <= MAX_PSI_RW and pre_psi1 >= -MAX_PSI_RW; // Wheel 1	
+	a_pre_psi2 = global :: always pre_psi2 <= MAX_PSI_RW and pre_psi2 >= -MAX_PSI_RW; // Wheel 2	
+	a_pre_psi3 = global :: always pre_psi3 <= MAX_PSI_RW and pre_psi3 >= -MAX_PSI_RW; // Wheel 3	
+	a_pre_psi4 = global :: always pre_psi4 <= MAX_PSI_RW and pre_psi4 >= -MAX_PSI_RW; // Wheel 4
+	
+	// NO DERIVED REQUIREMENTS 
+
+Properties: //System Level Requirements
+
+	//R01 The commanded change of angular velocity from the control algorithm shall not exceed the maximum allowable 
+	// angular acceleration of the reaction wheel.
+	r_01a_ctrl = global :: always psi_dot_comm_1_unv<= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_1_unv>= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01b_ctrl = global :: always psi_dot_comm_2_unv<= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_2_unv>= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01c_ctrl = global :: always psi_dot_comm_3_unv<= MAX_PSI_DOT_RW 
+		  					  and psi_dot_comm_3_unv>= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01d_ctrl = global :: always psi_dot_comm_4_unv<= MAX_PSI_DOT_RW 	
+							  and psi_dot_comm_4_unv>= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+
+	//R02 The control algorithm prediction of reaction wheel angular velocity as a result 
+	//of the commanded change of angular velocity shall not exceed the maximum allowable 
+	//angular velocity of the reaction wheel.
+	r_02a_ctrl = global :: always (pre_psi1 + psi_dot_comm_1_unv*DELTA_T) <= MAX_PSI_RW 
+						      and (pre_psi1 + psi_dot_comm_1_unv*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)] 
+	r_02b_ctrl = global :: always (pre_psi2 + psi_dot_comm_2_unv*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi2 + psi_dot_comm_2_unv*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02c_ctrl = global :: always (pre_psi3 + psi_dot_comm_3_unv*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi3 + psi_dot_comm_3_unv*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02d_ctrl = global :: always (pre_psi4 + psi_dot_comm_4_unv*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi4 + psi_dot_comm_4_unv*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	
+	r_output_ctrl_unv = global :: always psi_dot_comm_unv == new unverified_controller_output_type{psi_dot_comm_1_unv = psi_dot_comm_1_unv, psi_dot_comm_2_unv = psi_dot_comm_2_unv, psi_dot_comm_3_unv = psi_dot_comm_3_unv, psi_dot_comm_4_unv = psi_dot_comm_4_unv};
+	

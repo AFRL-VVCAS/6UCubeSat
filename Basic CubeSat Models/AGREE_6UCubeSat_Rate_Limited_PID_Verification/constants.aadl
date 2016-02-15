@@ -1,0 +1,18 @@
+package constants
+-- This is a place to store all of the constants for your architecture. 
+-- This practice becomes important for larger, compositional architectures
+-- Kerianne H Gross, AFRL/RQQA, kerianne.gross@us.af.mil
+-- Last updated 17 Nov 2015
+public
+
+annex agree {**
+	-- Reaction Wheel and Motor Properties
+	const MAX_PSI_RW : real = 104.7; -- [rad_p_s]
+	const MAX_PSI_DOT_RW : real = 110.3; -- [rad_p_s_2]
+
+-- Simulation Properties ----------------------------
+	const SYSTEM_RATE : real = 10.0; --[s]
+	const DELTA_T : real = 1.0/SYSTEM_RATE; --[s]
+**};
+
+end constants;

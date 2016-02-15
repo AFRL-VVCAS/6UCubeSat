@@ -1,0 +1,117 @@
+// PID_Controller.spear
+// This file contains the requirements of the control subsystem in the properties section
+// and refined requirements of the control subsystem in the requirements section.
+// This requirements set is abstract and doesn't include the PID control algorithm,
+// just how the controller ensures limits are not violated.
+// Kerianne Hobbs Gross 
+// kerianne.gross@us.af.mil
+// Last Updated 28 Aug 2015
+
+Relation SixU_CubeSat_v2.Controller;
+Uses SixU_CubeSat_v2.definitions.ontroller_output_type.*;
+Uses SixU_CubeSat_v2.definitions.*;
+
+
+Inputs: // input signals (states) to the controller
+	//////////////////////////////////////////////////////////////////////////////
+	// Orientation and angular velocity are commented out because values are used 
+	// in control algorithm calculation, but not in refined requirements - KHG
+	/* 
+	// quaternion orientation of the satellite
+	pre_q1 : real;
+	pre_q2 : real;
+	pre_q3 : real;
+	pre_q4 : real;
+	// angular velocity of the satellite
+	pre_w1 : real; // [rad/s]
+	pre_w2 : real; // [rad/s]
+	pre_w3 : real; // [rad/s]
+	*/
+	/////////////////////////////////////////////////////////////////////////////
+	// angular velocity of the individual reaction wheels at the previous time step 
+	// (from the Hall Sensors)
+	pre_psi1 : real; // [rad_p_s (rad/s)]
+	pre_psi2 : real; // [rad_p_s (rad/s)]
+	pre_psi3 : real; // [rad_p_s (rad/s)]
+	pre_psi4 : real; // [rad_p_s (rad/s)]
+
+//Outputs: // output commands of the controller
+	//Interface requirement: the control algorithm shall output a change of angular velocity command to each reaction wheel.
+	//psi_dot_comm : controller_output_type; // [rad/s^2]	
+	
+State: // variables
+	psi_dot_comm_1 : real;	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 1
+	psi_dot_comm_2 : real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 2	
+	psi_dot_comm_3 : real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 3
+	psi_dot_comm_4 : real; 	// [rad/s^2]	Commanded change in angular velocity for reaction wheel 4
+	psi_dot_comm_1_calc: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 1
+	psi_dot_comm_2_calc: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 2
+	psi_dot_comm_3_calc: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 3
+	psi_dot_comm_4_calc: real;  // [rad/s^2]	Calculated change in angular velocity for reaction wheel 4
+
+	
+Macros:
+	
+	// If the calculated velocity is greater than max (or less -max), set the change to 0;
+	// If the acceleration is greater than max (or less than -max), set it to max
+	psi_dot_1_act : real =	if (pre_psi1 + psi_dot_comm_1_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else
+							if (pre_psi1 + psi_dot_comm_1_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else
+							if (psi_dot_comm_1_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else
+							if (psi_dot_comm_1_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else
+								psi_dot_comm_1_calc; // Wheel 1
+	psi_dot_2_act : real =	if (pre_psi2 + psi_dot_comm_2_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else
+							if (pre_psi2 + psi_dot_comm_2_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else
+							if (psi_dot_comm_2_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else
+							if (psi_dot_comm_2_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else
+								psi_dot_comm_2_calc;// Wheel 2
+	psi_dot_3_act : real =	if (pre_psi3 + psi_dot_comm_3_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else
+							if (pre_psi3 + psi_dot_comm_3_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else
+							if (psi_dot_comm_3_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else
+							if (psi_dot_comm_3_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else
+								psi_dot_comm_3_calc;// Wheel 3	
+	psi_dot_4_act : real =	if (pre_psi4 + psi_dot_comm_4_calc*DELTA_T) >= MAX_PSI_RW then 0.0 else
+							if (pre_psi4 + psi_dot_comm_4_calc*DELTA_T) <= -MAX_PSI_RW then 0.0 else
+							if (psi_dot_comm_4_calc < -MAX_PSI_DOT_RW) then -MAX_PSI_DOT_RW else
+							if (psi_dot_comm_4_calc > MAX_PSI_DOT_RW) then MAX_PSI_DOT_RW else
+								psi_dot_comm_4_calc; // Wheel 4					
+	   
+Requirements: //Assumptions and Refined Requirements at the Subsystem Level
+	// ASSUMPTIONS (on the inputs)
+	// We assume that the previous (sensed) reaction wheel speed is not in excess of the max
+	a_pre_psi1 = global :: always pre_psi1 <= MAX_PSI_RW and pre_psi1 >= -MAX_PSI_RW; // Wheel 1	
+	a_pre_psi2 = global :: always pre_psi2 <= MAX_PSI_RW and pre_psi2 >= -MAX_PSI_RW; // Wheel 2	
+	a_pre_psi3 = global :: always pre_psi3 <= MAX_PSI_RW and pre_psi3 >= -MAX_PSI_RW; // Wheel 3	
+	a_pre_psi4 = global :: always pre_psi4 <= MAX_PSI_RW and pre_psi4 >= -MAX_PSI_RW; // Wheel 4
+	
+	// REFINED REQUIREMENTS
+	//Set reaction wheel commanded angular velocity to values calculated in Macros
+	r_psi_dot_comm_1 = global :: always psi_dot_comm_1 == psi_dot_1_act; // Wheel 1
+	r_psi_dot_comm_2 = global :: always psi_dot_comm_2 == psi_dot_2_act; // Wheel 2
+	r_psi_dot_comm_3 = global :: always psi_dot_comm_3 == psi_dot_3_act; // Wheel 3
+	r_psi_dot_comm_4 = global :: always psi_dot_comm_4 == psi_dot_4_act; // Wheel 4
+	
+Properties: //System Level Requirements
+
+	//R01 The commanded change of angular velocity from the control algorithm shall not exceed the maximum allowable 
+	// angular acceleration of the reaction wheel.
+	r_01a_ctrl = global :: always psi_dot_comm_1 <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_1 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01b_ctrl = global :: always psi_dot_comm_2 <= MAX_PSI_DOT_RW 
+							  and psi_dot_comm_2 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01c_ctrl = global :: always psi_dot_comm_3 <= MAX_PSI_DOT_RW 
+		  					  and psi_dot_comm_3 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+	r_01d_ctrl = global :: always psi_dot_comm_4 <= MAX_PSI_DOT_RW 	
+							  and psi_dot_comm_4 >= -MAX_PSI_DOT_RW; //[rad_p_s_2 (rad/s^2)]
+
+	//R02 The control algorithm prediction of reaction wheel angular velocity as a result 
+	//of the commanded change of angular velocity shall not exceed the maximum allowable 
+	//angular velocity of the reaction wheel.
+	r_02a_ctrl = global :: always (pre_psi1 + psi_dot_comm_1*DELTA_T) <= MAX_PSI_RW 
+						      and (pre_psi1 + psi_dot_comm_1*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)] 
+	r_02b_ctrl = global :: always (pre_psi2 + psi_dot_comm_2*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi2 + psi_dot_comm_2*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02c_ctrl = global :: always (pre_psi3 + psi_dot_comm_3*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi3 + psi_dot_comm_3*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	r_02d_ctrl = global :: always (pre_psi4 + psi_dot_comm_4*DELTA_T) <= MAX_PSI_RW 
+							  and (pre_psi4 + psi_dot_comm_4*DELTA_T) >= -MAX_PSI_RW; // [rad_p_s (rad/s)]
+	
